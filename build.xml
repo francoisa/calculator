@@ -1,0 +1,61 @@
+<project name="calc" default="dist" basedir=".">
+  <description>antlr4 based calculator</description>
+
+  <property name="version" value="1.0"/>
+  <property name="src" location="src"/>
+  <property name="lib" location="lib"/>
+  <property name="dist" location="target"/>
+  <property name="build" location="${dist}/classes"/>
+  <property name="antlr4" location="${src}/main/java/net/jmf/antlr4"/>
+  <property name="antlr4.src" location="${src}/main/antlr4"/>
+
+  <target name="init">
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="grammar" depends="init">
+    <java classname="org.antlr.v4.Tool" 
+	  fork="true"
+	  classpath="${lib}/antlr-4.5.3-complete.jar">
+      <arg value="-visitor"/>
+      <arg value="-package"/>
+      <arg value="net.jmf.antlr4"/>
+      <arg value="${antlr4.src}/LabeledExpr.g4"/>
+    </java>
+    <mkdir dir="${antlr4}"/>
+    <delete dir="${antlr4}"/>
+    <move todir="${antlr4}">
+      <fileset dir="${antlr4.src}">
+	<include name="*.java"/>
+      </fileset>
+    </move>
+    <delete>
+      <fileset dir="${antlr4.src}">
+	<include name="*.tokens"/>
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="compile" depends="grammar"
+        description="compile the source">
+    <javac srcdir="${src}/main/java" 
+	   destdir="${build}"
+	   classpath="${lib}/antlr-runtime-4.5.3.jar"
+	   source="1.8"
+	   includeantruntime="false"
+	   />
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution">
+    <mkdir dir="${dist}"/>
+    <jar jarfile="${dist}/calc-${version}.jar" 
+	 basedir="${build}"/>
+  </target>
+
+  <target name="clean"
+        description="clean up">
+    <delete dir="${dist}"/>
+    <delete dir="${antlr4}"/>
+  </target>
+</project>
