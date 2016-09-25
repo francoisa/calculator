@@ -1,28 +1,42 @@
 package net.jmf.calc;
 
-import net.jmf.antlr4.*;
-import java.util.HashMap;
 import java.util.Map;
+
+import net.jmf.antlr4.LabeledExprBaseVisitor;
+import net.jmf.antlr4.LabeledExprParser;
 
 public class EvalVisitor extends LabeledExprBaseVisitor<Integer> {
     /** "memory" for our calculator; variable/value pairs go here */
-    Map<String, Integer> memory = new HashMap<String, Integer>();
+    private Map<String, Integer> mMemory;
+    private Integer mValue;
+    
+    public EvalVisitor(Map<String, Integer> memory) {
+    	mMemory = memory;
+    }
+
+    public Map<String, Integer> getMemory() {
+    	return mMemory;
+    }
+
+    public Integer getValue() {
+    	return mValue == null ? 0 : mValue;
+    }
 
     /** ID '=' expr NEWLINE */
     @Override
     public Integer visitAssign(LabeledExprParser.AssignContext ctx) {
         String id = ctx.ID().getText();  // id is left-hand side of '='
         int value = visit(ctx.expr());   // compute value of expression on right
-        memory.put(id, value);           // store it in our memory
+        mMemory.put(id, value);           // store it in our memory
         return value;
     }
 
     /** expr NEWLINE */
     @Override
     public Integer visitPrintExpr(LabeledExprParser.PrintExprContext ctx) {
-        Integer value = visit(ctx.expr()); // evaluate the expr child
-        System.out.println(value);         // print the result
-        return 0;                          // return dummy value
+    	mValue = visit(ctx.expr()); // evaluate the expr child
+        System.out.println(mValue);         // print the result
+        return mValue;                          // return dummy value
     }
 
     /** INT */
@@ -35,7 +49,7 @@ public class EvalVisitor extends LabeledExprBaseVisitor<Integer> {
     @Override
     public Integer visitId(LabeledExprParser.IdContext ctx) {
         String id = ctx.ID().getText();
-        if ( memory.containsKey(id) ) return memory.get(id);
+        if ( mMemory.containsKey(id) ) return mMemory.get(id);
         return 0;
     }
 

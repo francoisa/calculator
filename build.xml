@@ -13,10 +13,9 @@
     <mkdir dir="${build}"/>
   </target>
 
-  <target name="grammar" depends="init">
-    <java classname="org.antlr.v4.Tool" 
-	  fork="true"
-	  classpath="${lib}/antlr-4.5.3-complete.jar">
+  <target name="grammar" depends="init"
+  	description="run antlr4 tool">
+    <java fork="true" jar="${lib}/antlr-4.5.3-complete.jar">
       <arg value="-visitor"/>
       <arg value="-package"/>
       <arg value="net.jmf.antlr4"/>
@@ -24,14 +23,21 @@
     </java>
     <mkdir dir="${antlr4}"/>
     <delete dir="${antlr4}"/>
-    <move todir="${antlr4}">
-      <fileset dir="${antlr4.src}">
-	<include name="*.java"/>
+    <move todir="${antlr4}"
+          verbose="true">
+        <fileset dir="${src}/main">
+          <include name="*.java"/>
+        </fileset>
+    	<fileset dir="${antlr4.src}">
+        <include name="*.java"/>
       </fileset>
     </move>
     <delete>
-      <fileset dir="${antlr4.src}">
-	<include name="*.tokens"/>
+        <fileset dir="${src}/main">
+          <include name="*.tokens"/>
+        </fileset>
+    	<fileset dir="${antlr4.src}">
+        <include name="*.tokens"/>
       </fileset>
     </delete>
   </target>
